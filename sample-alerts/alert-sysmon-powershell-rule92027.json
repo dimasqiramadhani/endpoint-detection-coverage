@@ -1,0 +1,65 @@
+{
+  "_index": "wazuh-alerts-4.x-2026.05.24",
+  "_id": "OheWW54BNSzWP1hGLYw3",
+  "_source": {
+    "input": { "type": "log" },
+    "agent": {
+      "ip": "REDACTED",
+      "name": "winsrv-agent",
+      "id": "002"
+    },
+    "manager": { "name": "ubnsrv-aio" },
+    "data": {
+      "win": {
+        "eventdata": {
+          "originalFileName": "PowerShell.EXE",
+          "image": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+          "product": "Microsoft® Windows® Operating System",
+          "parentProcessGuid": "{03fe15ac-5938-6a13-d0ac-000000000900}",
+          "description": "Windows PowerShell",
+          "parentCommandLine": "\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\"",
+          "processGuid": "{03fe15ac-59a2-6a13-d5ac-000000000900}",
+          "logonId": "0x4cd7ab",
+          "parentProcessId": "7012",
+          "processId": "5680",
+          "currentDirectory": "C:\\Windows\\system32\\",
+          "utcTime": "2026-05-24 20:03:46.622",
+          "hashes": "MD5=7353F60B1739074EB17C5F4DDDEFE239,SHA256=DE96A6E69944335375DC1AC238336066889D9FFC7D73628EF4FE1B1B160AB32C,IMPHASH=741776AACCFC5B71FF59832DCDCACE0F",
+          "parentImage": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+          "company": "Microsoft Corporation",
+          "commandLine": "\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" -ExecutionPolicy Bypass -Command \"Write-Host 'detection-test'\"",
+          "integrityLevel": "High",
+          "fileVersion": "10.0.17763.1 (WinBuild.160101.0800)",
+          "user": "WINSRV-AGN\\ecustomer",
+          "terminalSessionId": "2",
+          "parentUser": "WINSRV-AGN\\ecustomer"
+        },
+        "system": {
+          "eventID": "1",
+          "channel": "Microsoft-Windows-Sysmon/Operational",
+          "computer": "winsrv-agn",
+          "severityValue": "INFORMATION",
+          "providerName": "Microsoft-Windows-Sysmon",
+          "systemTime": "2026-05-24T20:03:46.635237400Z",
+          "eventRecordID": "836565"
+        }
+      }
+    },
+    "rule": {
+      "firedtimes": 1,
+      "mail": false,
+      "level": 4,
+      "description": "Powershell process spawned powershell instance",
+      "groups": ["sysmon", "sysmon_eid1_detections", "windows"],
+      "mitre": {
+        "technique": ["PowerShell"],
+        "id": ["T1059.001"],
+        "tactic": ["Execution"]
+      },
+      "id": "92027"
+    },
+    "location": "EventChannel",
+    "decoder": { "name": "windows_eventchannel" },
+    "timestamp": "2026-05-25T03:03:47.629+0700"
+  }
+}

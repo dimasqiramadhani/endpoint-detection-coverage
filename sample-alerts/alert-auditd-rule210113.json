@@ -1,0 +1,59 @@
+{
+  "_index": "wazuh-alerts-4.x-2026.05.24",
+  "_id": "LxegW54BNSzWP1hGEY84",
+  "_source": {
+    "input": { "type": "log" },
+    "agent": {
+      "ip": "REDACTED",
+      "name": "ubnsrv-agent",
+      "id": "001"
+    },
+    "manager": { "name": "ubnsrv-aio" },
+    "data": {
+      "audit": {
+        "syscall": "41",
+        "auid": "4294967295",
+        "gid": "0",
+        "euid": "0",
+        "fsgid": "0",
+        "session": "4294967295",
+        "pid": "138145",
+        "suid": "0",
+        "type": "SYSCALL",
+        "command": "falco",
+        "ppid": "1",
+        "fsuid": "0",
+        "exit": "10",
+        "uid": "0",
+        "egid": "0",
+        "exe": "/usr/bin/falco",
+        "success": "yes",
+        "tty": "(none)",
+        "sgid": "0",
+        "id": "1338157",
+        "arch": "c000003e",
+        "key": "T1011_Exfiltration_Over_Other_Network_Medium"
+      }
+    },
+    "rule": {
+      "firedtimes": 208,
+      "mail": false,
+      "level": 10,
+      "description": "Auditd: Raw socket created - possible exfiltration (/usr/bin/falco)",
+      "groups": ["audit", "auditd", "exfiltration"],
+      "mitre": {
+        "technique": ["Exfiltration Over Other Network Medium"],
+        "id": ["T1011"],
+        "tactic": ["Exfiltration"]
+      },
+      "id": "210113"
+    },
+    "location": "/var/log/audit/audit.log",
+    "decoder": {
+      "parent": "auditd",
+      "name": "auditd"
+    },
+    "full_log": "type=SYSCALL msg=audit(1779653674.978:1338157): arch=c000003e syscall=41 success=yes exit=10 a0=2 a1=80802 a2=0 a3=7ff515df4e88 items=0 ppid=1 pid=138145 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm=\"falco\" exe=\"/usr/bin/falco\" subj=unconfined key=\"T1011_Exfiltration_Over_Other_Network_Medium\"",
+    "timestamp": "2026-05-25T03:14:35.490+0700"
+  }
+}

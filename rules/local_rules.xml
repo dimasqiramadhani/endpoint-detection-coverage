@@ -1,0 +1,214 @@
+<!-- Local rules -->
+<!-- Modify it at your will. -->
+<!-- Copyright (C) 2015, Wazuh Inc. -->
+<!--
+  Rule ID ranges in this lab:
+    100001        : SSH example rule (original template)
+    117000-117003 : Falco integration rules
+    210100-210114 : auditd custom detection rules (MITRE ATT&CK mapped)
+
+  Rule IDs 100100-200186 are occupied by Sysmon MITRE rule files:
+    100100-MITRE_TECHNIQUES_FROM_SYSMON_EVENT1.xml
+    101101-MITRE_TECHNIQUES_FROM_SYSMON_EVENT2.xml
+    ... (and others)
+  Always verify before adding new rule IDs:
+    grep -r "rule id=" /var/ossec/etc/rules/ | grep -v "if_sid" | awk -F'"' '{print $2}' | sort -n | tail -20
+-->
+
+<group name="local,syslog,sshd,">
+  <rule id="100001" level="5">
+    <if_sid>5716</if_sid>
+    <srcip>1.1.1.1</srcip>
+    <description>sshd: authentication failed from IP 1.1.1.1.</description>
+    <group>authentication_failed,pci_dss_10.2.4,pci_dss_10.2.5,</group>
+  </rule>
+</group>
+
+<!-- ============================================================
+     FALCO RULES (117000-117003)
+     
+     Falco outputs JSON to /var/log/falco/falco_events.json.
+     Wazuh Agent reads this file via <localfile> with log_format: json.
+     Wazuh's built-in JSON decoder handles parsing — no custom decoder needed.
+     
+     Rule 117000 is the base rule that matches any Falco JSON event.
+     Rules 117001-117003 are child rules that override the level based
+     on the Falco priority field.
+     
+     Verified working: 12,080 Falco alerts in 24h sample including:
+       - Suspicious sshd Execution Pattern (XZ Backdoor Indicators) → 117001
+       - Read sensitive file untrusted → 117002
+       - Unexpected UDP Traffic → 117003
+     ============================================================ -->
+<group name="falco,">
+  <rule id="117000" level="6">
+    <decoded_as>json</decoded_as>
+    <field name="rule">.+</field>
+    <field name="priority">.+</field>
+    <field name="hostname">.+</field>
+    <description>Falco: $(rule) - $(output)</description>
+    <options>no_full_log</options>
+    <group>falco,</group>
+  </rule>
+
+  <rule id="117001" level="10">
+    <if_sid>117000</if_sid>
+    <field name="priority">Critical|CRITICAL</field>
+    <description>Falco Critical: $(rule)</description>
+    <group>falco,falco_critical,</group>
+  </rule>
+
+  <rule id="117002" level="7">
+    <if_sid>117000</if_sid>
+    <field name="priority">Warning|WARNING</field>
+    <description>Falco Warning: $(rule)</description>
+    <group>falco,falco_warning,</group>
+  </rule>
+
+  <rule id="117003" level="5">
+    <if_sid>117000</if_sid>
+    <field name="priority">Notice|NOTICE|Informational|INFORMATIONAL</field>
+    <description>Falco Notice: $(rule)</description>
+    <group>falco,falco_info,</group>
+  </rule>
+</group>
+
+<!-- ============================================================
+     AUDITD CUSTOM RULES (210100-210114)
+     
+     Parent: Rule 80700 (built-in, level 0 — "Audit: Messages grouped")
+     All auditd SYSCALL events match 80700 first. These child rules
+     override with higher levels when specific audit.key values match.
+     
+     The audit keys come from the MITRE ATT&CK-mapped auditd ruleset
+     installed on ubnsrv-agent. See configs/linux/auditd-rules.conf.
+     
+     Verified working via wazuh-logtest:
+       type=SYSCALL ... key="etcpasswd" → Rule 210100, level 8, T1003
+     
+     Confirmed in Dashboard: 128+ auditd alerts in 24h after deployment.
+     Top firing rules: 210113 (T1011, raw socket by Falco), 210102 (rootcmd)
+     ============================================================ -->
+<group name="audit,auditd,">
+
+  <rule id="210100" level="8">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">etcpasswd|shadow_access</field>
+    <description>Auditd: Sensitive credential file accessed ($(audit.exe) by uid=$(audit.uid))</description>
+    <group>audit,credential_access,</group>
+    <mitre><id>T1003</id></mitre>
+  </rule>
+
+  <rule id="210101" level="10">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">priv_esc</field>
+    <description>Auditd: Privilege escalation tool executed ($(audit.exe) by uid=$(audit.uid))</description>
+    <group>audit,privilege_escalation,</group>
+    <mitre><id>T1548</id></mitre>
+  </rule>
+
+  <rule id="210102" level="9">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">rootcmd</field>
+    <description>Auditd: Command executed as root by non-root user ($(audit.exe))</description>
+    <group>audit,privilege_escalation,</group>
+    <mitre><id>T1548.003</id></mitre>
+  </rule>
+
+  <rule id="210103" level="8">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">susp_activity</field>
+    <description>Auditd: Suspicious tool executed ($(audit.exe) by uid=$(audit.uid))</description>
+    <group>audit,suspicious_activity,</group>
+    <mitre><id>T1059</id></mitre>
+  </rule>
+
+  <rule id="210104" level="6">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">recon</field>
+    <description>Auditd: Reconnaissance command executed ($(audit.exe) by uid=$(audit.uid))</description>
+    <group>audit,recon,</group>
+    <mitre><id>T1082</id></mitre>
+  </rule>
+
+  <rule id="210105" level="9">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">user_modification|group_modification</field>
+    <description>Auditd: User or group account modified ($(audit.exe))</description>
+    <group>audit,account_management,</group>
+    <mitre><id>T1136</id></mitre>
+  </rule>
+
+  <rule id="210106" level="10">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">sshd</field>
+    <description>Auditd: SSH configuration accessed or modified ($(audit.exe))</description>
+    <group>audit,lateral_movement,</group>
+    <mitre><id>T1098</id></mitre>
+  </rule>
+
+  <rule id="210107" level="12">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">remote_shell</field>
+    <description>Auditd: Possible reverse shell - bash outbound connection detected</description>
+    <group>audit,reverse_shell,</group>
+    <mitre><id>T1059.004</id></mitre>
+  </rule>
+
+  <rule id="210108" level="8">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">cron</field>
+    <description>Auditd: Crontab or scheduled task modified ($(audit.exe))</description>
+    <group>audit,persistence,</group>
+    <mitre><id>T1053.003</id></mitre>
+  </rule>
+
+  <rule id="210109" level="10">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">modules</field>
+    <description>Auditd: Kernel module loaded or removed ($(audit.exe))</description>
+    <group>audit,rootkit,</group>
+    <mitre><id>T1547.006</id></mitre>
+  </rule>
+
+  <rule id="210110" level="12">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">code_injection|data_injection|register_injection</field>
+    <description>Auditd: Process injection via ptrace detected ($(audit.exe))</description>
+    <group>audit,injection,</group>
+    <mitre><id>T1055</id></mitre>
+  </rule>
+
+  <rule id="210111" level="11">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">auditconfig|auditlog|T1005_Data_From_Local_System_audit_log</field>
+    <description>Auditd: Audit log or config tampered ($(audit.exe)) - possible defense evasion</description>
+    <group>audit,defense_evasion,</group>
+    <mitre><id>T1070.002</id></mitre>
+  </rule>
+
+  <rule id="210112" level="7">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">perm_mod</field>
+    <description>Auditd: File permissions or ownership changed ($(audit.exe))</description>
+    <group>audit,file_integrity,</group>
+    <mitre><id>T1222</id></mitre>
+  </rule>
+
+  <rule id="210113" level="10">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">T1011_Exfiltration_Over_Other_Network_Medium</field>
+    <description>Auditd: Raw socket created - possible exfiltration ($(audit.exe))</description>
+    <group>audit,exfiltration,</group>
+    <mitre><id>T1011</id></mitre>
+  </rule>
+
+  <rule id="210114" level="8">
+    <if_sid>80700</if_sid>
+    <field name="audit.key">T1081_Credentials_In_Files</field>
+    <description>Auditd: Credential search tool executed ($(audit.exe))</description>
+    <group>audit,credential_access,</group>
+    <mitre><id>T1552.001</id></mitre>
+  </rule>
+
+</group>

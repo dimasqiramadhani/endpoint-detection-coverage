@@ -1,0 +1,18 @@
+# Sensitive data — never commit these
+ossec.conf
+*.key
+*.pem
+*.crt
+*.p12
+
+# Logs
+*.log
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+*.swp

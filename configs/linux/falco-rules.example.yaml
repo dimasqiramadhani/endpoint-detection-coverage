@@ -1,0 +1,35 @@
+# Falco Custom Rules — Example
+#
+# These are example custom rules for this lab.
+# They supplement Falco's default ruleset.
+# Place in /etc/falco/rules.d/ or add to /etc/falco/falco_rules.local.yaml
+#
+# Replace with your actual custom rules.
+
+- rule: Sensitive File Read by Non-Root
+  desc: Detect reads of sensitive files by non-root users
+  condition: >
+    open_read and
+    sensitive_files and
+    not proc.name in (shadow_utils_procs) and
+    not user.name = root
+  output: >
+    Sensitive file read by non-root user
+    (file=%fd.name user=%user.name command=%proc.cmdline pid=%proc.pid)
+  priority: WARNING
+  tags: [filesystem, mitre_credential_access]
+
+- rule: Shell Spawned from Non-Shell Parent
+  desc: Detect shell processes spawned by unexpected parent processes
+  condition: >
+    spawned_process and
+    shell_procs and
+    not proc.pname in (shell_binaries, cron, sshd, bash, sudo, su)
+  output: >
+    Shell spawned from unusual parent
+    (parent=%proc.pname command=%proc.cmdline user=%user.name)
+  priority: NOTICE
+  tags: [process, mitre_execution]
+
+# Add your own rules below as you build detection coverage
+# [Insert additional custom Falco rules here]

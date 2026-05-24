@@ -1,0 +1,49 @@
+# Falco Configuration — ubnsrv-agent (Ubuntu 22.04.5 LTS)
+# Relevant section: file_output
+#
+# Falco is configured to write alerts as JSON to a local file.
+# The Wazuh Agent reads this file via <localfile> with log_format: json.
+#
+# Full falco.yaml path: /etc/falco/falco.yaml
+# Custom rules directory: /etc/falco/rules.d/
+#   - falco-incubating_rules.yaml  (community incubating rules)
+#   - falco-linux-enchance.yaml    (Linux-specific enhancements)
+#
+# No local custom rules (falco_rules.local.yaml is empty / not present).
+# Detection is based on default Falco ruleset + the two files in rules.d/.
+
+# ── file_output section (from /etc/falco/falco.yaml) ─────────────────────────
+
+# file_output — write alerts to a local file for Wazuh Agent to collect.
+# keep_alive: true = file is opened once and written continuously (better performance).
+# Logrotate should be configured to prevent unbounded file growth.
+file_output:
+  enabled: true
+  keep_alive: true
+  filename: /var/log/falco/falco_events.json
+
+# ── Wazuh Agent localfile config (from ossec.conf) ───────────────────────────
+# The Wazuh Agent is configured to read the Falco output file as JSON:
+#
+# <localfile>
+#   <log_format>json</log_format>
+#   <location>/var/log/falco/falco_events.json</location>
+# </localfile>
+#
+# ── Falco rules currently active in this lab ─────────────────────────────────
+# These are the Falco rules that have generated alerts in the 24h sample:
+#
+# Rule                                                    Priority
+# ──────────────────────────────────────────────────────────────────
+# Suspicious sshd Execution Pattern (XZ Backdoor Indicators)  Critical
+# Read sensitive file untrusted                                Warning
+# Read ssh information                                         Error
+# Unexpected UDP Traffic                                       Notice
+# Local Account Created via CLI                                Warning
+#
+# ── Wazuh detection rules for Falco output ───────────────────────────────────
+# See rules/local_rules.xml:
+#   117000 — base Falco rule (level 6)
+#   117001 — Critical priority (level 10)
+#   117002 — Warning priority (level 7)
+#   117003 — Notice/Informational priority (level 5)
