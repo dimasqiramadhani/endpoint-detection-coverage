@@ -276,4 +276,3 @@ Dimasqi Ramadhani, Security Engineer
 - [Portfolio](https://dimasqiramadhani.com)
 - [Github](https://github.com/dimasqiramadhani)
 - [Linkedin](https://linkedin.com/in/dimasqiramadhani)
-- [Email](mail@dimasqiramadhani.com)
