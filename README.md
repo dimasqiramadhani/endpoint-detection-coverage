@@ -19,27 +19,6 @@ The implementation was preceded by a Proof of Concept phase to validate detectio
 
 ## Architecture
 
-```
-+--------------------------------------------------------------+
-|             ubnsrv-aio  -  Wazuh All-in-One                  |
-|          Manager  .  Indexer  .  Dashboard                   |
-|                                                              |
-|   Central SIEM receiving telemetry from both endpoints       |
-|   Handles log ingestion, correlation, alerting               |
-+------------------+---------------------------+---------------+
-                   |                           |
-          Wazuh Agent v4.14.5         Wazuh Agent v4.14.5
-                   |                           |
-+------------------v------+   +----------------v--------------+
-|  ubnsrv-agent           |   |  winsrv-agent                 |
-|  Ubuntu 22.04.5 LTS     |   |  Windows Server 2019 Std      |
-|                         |   |                               |
-|  - Falco 0.43.1         |   |  - Sysmon v15.20              |
-|  - auditd               |   |  - Wazuh Agent                |
-|  - Wazuh Agent          |   |                               |
-+-------------------------+   +-------------------------------+
-```
-
 ```mermaid
 graph TB
     subgraph AIO["Wazuh All-in-One - Central SIEM"]
