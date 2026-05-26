@@ -4,18 +4,46 @@
 
 This document describes the path logs take from their source to the Wazuh Dashboard.
 
-## Linux Endpoint (VM2)
+```mermaid
+flowchart TD
+    subgraph VM2["VM2: Linux Endpoint"]
+        auditd["auditd"]
+        falco["Falco"]
+        audit_log["/var/log/audit/audit.log"]
+        falco_log["/var/log/falco/falco_alerts.log"]
 
+        auditd -->|writes syscall events| audit_log
+        falco -->|writes runtime alerts| falco_log
+    end
+
+    subgraph VM3["VM3: Windows Endpoint"]
+        sysmon["Sysmon"]
+        eventlog["Windows Event Log"]
+
+        sysmon -->|writes events| eventlog
+    end
+
+    subgraph VM1["VM1: Wazuh Server"]
+        manager["Wazuh Manager\n(Decoders + Rules 117xxx)"]
+        indexer["Wazuh Indexer\n(OpenSearch)"]
+        dashboard["Wazuh Dashboard"]
+
+        manager -->|stores alerts| indexer
+        indexer -->|visualizes| dashboard
+    end
+
+    audit_log -->|"localfile (ossec.conf)"| agent_linux["Wazuh Agent\n(Linux)"]
+    falco_log -->|"localfile (ossec.conf)"| agent_linux
+
+    eventlog -->|"eventchannel"| agent_win["Wazuh Agent\n(Windows)"]
+
+    agent_linux -->|"port 1514 (encrypted)"| manager
+    agent_win -->|"port 1514 (encrypted)"| manager
+
+    dashboard -->|monitors| analyst["SOC Analyst"]
 ```
-┌──────────────────────────────────────────────────────────────────┐
-│                   VM2: Linux                                     │
-│                                                                  │
-│  auditd ──► /var/log/audit/audit.log ──┐                         │
-│                                        ├──► Wazuh Agent ──► VM1  │
-│  Falco ───► /var/log/falco/falco_alerts.log ─┘                   │
-│                                                                  │
-└──────────────────────────────────────────────────────────────────┘
-```
+
+## Linux Endpoint (VM2)
 
 1. **auditd** writes syscall events to `/var/log/audit/audit.log`
 2. **Falco** writes runtime alerts to its configured log file (e.g., `/var/log/falco/falco_alerts.log`)
@@ -24,25 +52,11 @@ This document describes the path logs take from their source to the Wazuh Dashbo
 
 ## Windows Endpoint (VM3)
 
-```
-┌────────────────────────────────────────────────────────┐
-│              VM3: Windows Server 2019                  │
-│                                                        │
-│  Sysmon ──► Windows Event Log ──► Wazuh Agent ──► VM1  │
-│             (Sysmon/Operational)                       │
-│                                                        │
-└────────────────────────────────────────────────────────┘
-```
-
 1. **Sysmon** writes events to the `Microsoft-Windows-Sysmon/Operational` event channel
 2. **Wazuh Agent** reads the event channel via `eventchannel` log format
 3. Agent forwards events to **Wazuh Manager** on VM1 over port 1514 (encrypted)
 
 ## Processing on Wazuh Manager (VM1)
-
-```
-Incoming events ──► Decoders ──► Rules ──► Alerts ──► Indexer ──► Dashboard
-```
 
 1. **Decoders** parse raw log data into structured fields
 2. **Rules** evaluate decoded events and generate alerts when conditions match
