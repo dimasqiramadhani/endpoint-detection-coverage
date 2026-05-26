@@ -1,28 +1,10 @@
 # Wazuh Security Monitoring Implementation
 
+![Cover Image](screenshots/Cover%20Image.png)
+
 Security monitoring implementation developed for an assurance services client as part of a two-month security engineering engagement. The implementation covers endpoint telemetry collection, centralized log management, and detection engineering across Linux and Windows server environments.
 
 This repository documents the technical architecture, configurations, detection rules, and validation testing conducted during the engagement. The lab environment was built on a cloned infrastructure within Visionet's environment prior to production deployment.
-
-## Screenshots
-
-### Dashboard Overview
-![Dashboard Overview](screenshots/Dashboard%20Overview.png)
-
-### Agent Overview
-![Agent Overview](screenshots/Agent%20Overview.png)
-
-### Auditd Overview
-![Auditd Overview](screenshots/Auditd%20Overview.png)
-
-### Falco Overview
-![Falco Overview](screenshots/Falco%20Overview.png)
-
-### Sysmon Overview
-![Sysmon Overview](screenshots/Sysmon%20Overview.png)
-
-### Logtest - SYSCALL Rule 20210100 (Level 8)
-![Logtest SYSCALL](screenshots/Wazuh%20Logtest%20210100.png)
 
 ## Engagement Context
 
