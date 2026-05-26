@@ -4,7 +4,25 @@ Security monitoring implementation developed for an assurance services client as
 
 This repository documents the technical architecture, configurations, detection rules, and validation testing conducted during the engagement. The lab environment was built on a cloned infrastructure within Visionet's environment prior to production deployment.
 
----
+## Screenshots
+
+### Dashboard Overview
+![Dashboard Overview](screenshots/Dashboard%20Overview.png)
+
+### Agent Overview
+![Agent Overview](screenshots/Agent%20Overview.png)
+
+### Auditd Overview
+![Auditd Overview](screenshots/Auditd%20Overview.png)
+
+### Falco Overview
+![Falco Overview](screenshots/Falco%20Overview.png)
+
+### Sysmon Overview
+![Sysmon Overview](screenshots/Sysmon%20Overview.png)
+
+### Logtest - SYSCALL Rule 20210100 (Level 8)
+![Logtest SYSCALL](screenshots/Wazuh%20Logtest%20210100.png)
 
 ## Engagement Context
 
@@ -14,8 +32,6 @@ This repository documents the technical architecture, configurations, detection 
 **Scope:** Security monitoring implementation using Wazuh as the central SIEM, covering Linux and Windows server endpoints with multi-source telemetry integration
 
 The implementation was preceded by a Proof of Concept phase to validate detection coverage and dashboard functionality before production rollout. This repository reflects the configurations and rules developed and tested during that process.
-
----
 
 ## Architecture
 
@@ -46,8 +62,6 @@ graph TB
     WA -->|port 1514 TLS| WM
 ```
 
----
-
 ## Environment Inventory
 
 | Host         | Role                              | OS                                              | Wazuh Version | Agent ID     | Status |
@@ -57,8 +71,6 @@ graph TB
 | winsrv-agent | Windows Server Endpoint           | Windows Server 2019 Standard (Build 10.0.17763) | v4.14.5       | 002          | Active |
 
 Full version details in [docs/lab-inventory.md](docs/lab-inventory.md).
-
----
 
 ## Components
 
@@ -72,8 +84,6 @@ Full version details in [docs/lab-inventory.md](docs/lab-inventory.md).
 | Falco           | 0.43.1               | Runtime threat detection via eBPF                | ubnsrv-agent |
 | auditd          | Ubuntu 22.04 package | Linux syscall auditing                           | ubnsrv-agent |
 | Sysmon          | v15.20               | Windows process, network, and file telemetry     | winsrv-agent |
-
----
 
 ## Telemetry Sources and Log Flow
 
@@ -95,8 +105,6 @@ Three independent telemetry sources feed into the central Wazuh instance. Each u
 | Security Events | eventchannel - Security (filtered)                      | eventchannel | Wazuh Agent, port 1514 |
 
 See [docs/log-flow.md](docs/log-flow.md) for detailed processing flow.
-
----
 
 ## Detection Engineering
 
@@ -150,8 +158,6 @@ Custom Wazuh rules were developed to extend detection coverage beyond the built-
 | Network connections      | Sysmon         | Outbound and inbound connection logging                                                    |
 | Authentication failures  | Wazuh built-in | SSH brute-force, invalid user attempts                                                     |
 
----
-
 ## Validation Testing
 
 All detection scenarios were tested and validated before production handover.
@@ -192,8 +198,6 @@ Dashboard panels:
 
 Screenshots in `screenshots/`.
 
----
-
 ## Observations from Production Environment
 
 During the POC and testing phase, the environment received real external attack traffic. Key observations:
@@ -203,8 +207,6 @@ During the POC and testing phase, the environment received real external attack 
 - auditd rule 210113 fires frequently because Falco itself creates raw sockets for eBPF-based monitoring. This is a documented false positive and an exclusion for `/usr/bin/falco` is planned.
 
 Sample alerts from the environment are in `sample-alerts/`.
-
----
 
 ## Known Issues and Planned Work
 
@@ -216,8 +218,6 @@ Sample alerts from the environment are in `sample-alerts/`.
 | Implement multi-record auditd correlation             | Medium   | SYSCALL + PATH + EXECVE grouped context      |
 | Add custom Sysmon rules for PowerShell abuse          | Low      | Currently relying on built-in rules only     |
 | Add network telemetry (Suricata or Zeek)              | Low      | Future phase consideration                   |
-
----
 
 ## Repository Structure
 
@@ -267,8 +267,6 @@ wazuh-detection-lab/
 └── notes/
 ```
 
----
-
 ## Author
 
 Dimasqi Ramadhani, Security Engineer
@@ -276,3 +274,7 @@ Dimasqi Ramadhani, Security Engineer
 - [Portfolio](https://dimasqiramadhani.com)
 - [Github](https://github.com/dimasqiramadhani)
 - [Linkedin](https://linkedin.com/in/dimasqiramadhani)
+
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
