@@ -2,17 +2,17 @@
 
 ## Deployment Method
 
-Wazuh all-in-one installation using the official Wazuh installation script. Installs Manager, Indexer, and Dashboard on a single server.
+Wazuh All in One installation using the official Wazuh installation script. Installs Manager, Indexer, and Dashboard on a single server.
 
 ## System Requirements
 
 The server used for this deployment:
-- RAM: 16 GB
-- CPU: 2 cores (upgraded from initial spec due to Indexer memory requirements)
-- Storage: 128 GB
-- OS: Linux
+* RAM: 16 GB
+* CPU: 2 cores (upgraded from initial spec due to Indexer memory requirements)
+* Storage: 128 GB
+* OS: Linux
 
-Minimum recommended for all-in-one: 4 GB RAM. 8 GB is more comfortable under real alert load.
+Minimum recommended for All in One: 4 GB RAM. 8 GB is more comfortable under real alert load.
 
 ## Installation
 
@@ -25,7 +25,7 @@ Wazuh version installed: **v4.14.5 (rc1)**
 
 After installation, the Dashboard is accessible at `https://<server-ip>:443`. Default credentials are printed during installation.
 
-## Post-Installation Verification
+## After Installation Verification
 
 ```bash
 # Verify all services running
@@ -66,14 +66,14 @@ WAZUH_TYPE="server"
 
 ## Custom Rules Deployed
 
-Rules 117000-117003 (Falco) and 210100-210114 (auditd) were added to `/var/ossec/etc/rules/local_rules.xml`. See [custom-rules.md](custom-rules.md) for full documentation.
+Rules 117000-117003 (Falco) and 210100-210114 (auditd) were added to `/var/ossec/etc/rules/local_rules.xml`. See [CUSTOM_RULES.md](CUSTOM_RULES.md) for full documentation.
 
 After any rule change, restart the Manager:
 ```bash
 sudo systemctl restart wazuh-manager
 ```
 
-## Pre-installed Rule Files
+## Preinstalled Rule Files
 
 The following custom rule files were already present on the server and cover MITRE ATT&CK techniques for Sysmon events:
 

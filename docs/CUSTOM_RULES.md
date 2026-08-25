@@ -9,13 +9,13 @@ The file in this repo (`rules/local_rules.xml`) is the exact copy from the serve
 
 The lab uses these custom ID ranges:
 
-| Range         | Purpose                               | Count |
-|---------------|---------------------------------------|-------|
-| 100001        | SSH example rule (original template)  | 1     |
-| 117000–117003 | Falco integration rules               | 4     |
-| 210100–210114 | auditd detection rules (MITRE-mapped) | 15    |
+| Range            | Purpose                               | Count |
+|------------------|---------------------------------------|-------|
+| 100001           | SSH example rule (original template)  | 1     |
+| 117000 to 117003 | Falco integration rules               | 4     |
+| 210100 to 210114 | auditd detection rules (MITRE mapped) | 15    |
 
-**Why 210100+?** The range 100100–200186 was already occupied by Sysmon MITRE rule files that were pre-installed on the Wazuh Manager (e.g. `100100-MITRE_TECHNIQUES_FROM_SYSMON_EVENT1.xml`). When the auditd rules were first written using 100100–100116, Wazuh threw duplicate ID warnings and silently used only the Sysmon rules. Moving to 210100+ resolved this.
+**Why 210100+?** The range 100100 to 200186 was already occupied by Sysmon MITRE rule files that were preinstalled on the Wazuh Manager (e.g. `100100-MITRE_TECHNIQUES_FROM_SYSMON_EVENT1.xml`). When the auditd rules were first written using 100100 to 100116, Wazuh threw duplicate ID warnings and silently used only the Sysmon rules. Moving to 210100+ resolved this.
 
 How to check available rule IDs before adding new ones:
 ```bash
@@ -24,7 +24,7 @@ grep -r "rule id=" /var/ossec/etc/rules/ | grep -v "if_sid" | awk -F'"' '{print 
 
 ---
 
-## Falco Rules (117000–117003)
+## Falco Rules (117000 to 117003)
 
 ### How Falco events reach Wazuh
 
@@ -40,13 +40,13 @@ Rule 117000 matches: decoded_as=json + fields rule/priority/hostname present
 Child rules 117001-117003 match on priority field value
 ```
 
-**No custom decoder needed.** Wazuh's built-in JSON decoder handles Falco output directly because Falco is configured to write JSON. The key fields that rule 117000 matches on (`rule`, `priority`, `hostname`) are top-level keys in Falco's JSON output.
+**No custom decoder needed.** Wazuh's built in JSON decoder handles Falco output directly because Falco is configured to write JSON. The key fields that rule 117000 matches on (`rule`, `priority`, `hostname`) are top level keys in Falco's JSON output.
 
 ### Rule design
 
-Rule 117000 is intentionally broad - it matches any JSON event that has `rule`, `priority`, and `hostname` fields. In practice this means any Falco alert. The `$(rule)` and `$(output)` variables in the description pull directly from the Falco JSON fields, giving useful alert descriptions without needing field-specific rules for every Falco rule.
+Rule 117000 is intentionally broad, matching any JSON event that has `rule`, `priority`, and `hostname` fields. In practice this means any Falco alert. The `$(rule)` and `$(output)` variables in the description pull directly from the Falco JSON fields, giving useful alert descriptions without needing field specific rules for every Falco rule.
 
-Child rules 117001–117003 only check the `priority` field to adjust the Wazuh level:
+Child rules 117001 to 117003 only check the `priority` field to adjust the Wazuh level:
 
 | Falco Priority         | Wazuh Rule    | Level |
 |------------------------|---------------|-------|
@@ -69,7 +69,7 @@ Child rules 117001–117003 only check the `priority` field to adjust the Wazuh 
 
 ---
 
-## auditd Rules (210100–210114)
+## auditd Rules (210100 to 210114)
 
 ### How auditd events reach Wazuh
 
@@ -84,14 +84,14 @@ Rule 80700 matches: "Audit: Messages grouped" (level 0 - suppressed, not alerted
        ↓
 Child rules 210100-210114 match on audit.key field
        ↓
-Alert generated at level 6–12 depending on rule
+Alert generated at level 6 to 12 depending on rule
 ```
 
 ### Why rule 80700 matters
 
-Rule 80700 is Wazuh's built-in catch-all for auditd events. It's level 0, meaning it never generates an alert by itself - it just groups auditd events for child rule processing. **All custom auditd rules must use `<if_sid>80700</if_sid>` as their parent.**
+Rule 80700 is Wazuh's built in catch all for auditd events. It's level 0, meaning it never generates an alert by itself, it only groups auditd events for child rule processing. **All custom auditd rules must use `<if_sid>80700</if_sid>` as their parent.**
 
-This is why the Dashboard showed 0 auditd alerts initially: the `audit.key` field values from the MITRE-mapped ruleset (e.g. `etcpasswd`, `rootcmd`, `susp_activity`) didn't match any existing child rules. Custom rules 210100–210114 were written to explicitly match these keys.
+This is why the Dashboard showed 0 auditd alerts initially: the `audit.key` field values from the MITRE mapped ruleset (e.g. `etcpasswd`, `rootcmd`, `susp_activity`) didn't match any existing child rules. Custom rules 210100 to 210114 were written to explicitly match these keys.
 
 ### Rule coverage
 
@@ -99,7 +99,7 @@ This is why the Dashboard showed 0 auditd alerts initially: the `audit.key` fiel
 |---------|----------------------------------------------------------|-------|-----------|------------------------------|
 | 210100  | `etcpasswd`, `shadow_access`                             | 8     | T1003     | Credential file accessed     |
 | 210101  | `priv_esc`                                               | 10    | T1548     | Privilege escalation tool    |
-| 210102  | `rootcmd`                                                | 9     | T1548.003 | Non-root user ran as root    |
+| 210102  | `rootcmd`                                                | 9     | T1548.003 | Non root user ran as root    |
 | 210103  | `susp_activity`                                          | 8     | T1059     | Suspicious tool executed     |
 | 210104  | `recon`                                                  | 6     | T1082     | Recon command executed       |
 | 210105  | `user_modification`, `group_modification`                | 9     | T1136     | Account modified             |
@@ -115,12 +115,21 @@ This is why the Dashboard showed 0 auditd alerts initially: the `audit.key` fiel
 
 ### Observed behavior
 
-After deploying these rules, the implementation recorded 128+ auditd alerts in the first 24 hours. Top firing rules:
-- **210113** (T1011, raw socket) - fires frequently because Falco itself creates raw sockets for eBPF monitoring. This is a false positive worth noting: the rule fires on legitimate Falco behavior.
-- **210102** (rootcmd) - fires on any command run as root by a non-root user (via sudo/su).
-- **210100** (etcpasswd) - fires when sshd, cron, and other daemons read `/etc/shadow` during normal authentication.
+The dashboard capture in `screenshots/Dashboard_Overview.png` records 1,712 auditd alerts
+over 24 hours. Top firing rules:
 
-These observations are documented in `sample-alerts/` and `docs/lessons-learned.md`.
+* **210113** (T1011, socket creation) accounts for most of that volume. The audit rule
+  behind it watches the `socket` syscall with `a0=0x2` and `a0=0xA`, which is any `AF_INET`
+  or `AF_INET6` socket rather than a raw socket, so it matches ordinary network activity.
+  The executables raising it include `/usr/bin/falco` at 393, `/usr/sbin/sshd` at 174,
+  `/usr/lib/systemd/systemd` at 146, `/usr/bin/sudo` at 39, and `/usr/sbin/nginx` at 9.
+  Excluding Falco alone therefore removes under a quarter of it. See `docs/EVALUATION.md`,
+  finding 11.
+* **210102** (rootcmd) fires on any command run as root by a non root user, through sudo or su.
+* **210100** (etcpasswd) fires when sshd, cron, and other daemons read `/etc/shadow` during
+  normal authentication.
+
+These observations are documented in `sample_alerts/` and `docs/LESSONS_LEARNED.md`.
 
 ---
 
@@ -128,9 +137,9 @@ These observations are documented in `sample-alerts/` and `docs/lessons-learned.
 
 No custom decoders were written for this implementation.
 
-- **Falco**: handled by Wazuh's built-in JSON decoder. Falco JSON output is parsed automatically when `log_format: json` is set in the agent's `ossec.conf`.
-- **auditd**: handled by Wazuh's built-in auditd decoder. The `log_format: audit` setting in the agent config activates this decoder.
-- **Sysmon**: handled by Wazuh's built-in `windows_eventchannel` decoder.
+* **Falco**: handled by Wazuh's built in JSON decoder. Falco JSON output is parsed automatically when `log_format: json` is set in the agent's `ossec.conf`.
+* **auditd**: handled by Wazuh's built in auditd decoder. The `log_format: audit` setting in the agent config activates this decoder.
+* **Sysmon**: handled by Wazuh's built in `windows_eventchannel` decoder.
 
 `/var/ossec/etc/decoders/local_decoder.xml` contains only the default example decoder and has not been modified.
 
@@ -140,7 +149,7 @@ If Falco were configured to output plain text instead of JSON, a custom decoder 
 
 ## Other Rule Files Present
 
-The following custom rule files were pre-installed (not written by us):
+The following custom rule files were preinstalled (not written by us):
 
 ```
 100100-MITRE_TECHNIQUES_FROM_SYSMON_EVENT1.xml
@@ -161,4 +170,4 @@ The following custom rule files were pre-installed (not written by us):
 200110-auditd.xml
 ```
 
-These files provide MITRE ATT&CK-mapped rules for Sysmon event types and cover rule IDs 100100–200186. They are not included in this repo since they were pre-installed and are not part of this implementation's custom rules.
+These files provide MITRE ATT&CK mapped rules for Sysmon event types and cover rule IDs 100100 to 200186. They are not included in this repo since they were preinstalled and are not part of this implementation's custom rules.

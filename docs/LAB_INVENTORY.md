@@ -5,7 +5,7 @@ Environment: 3-VM lab (all VMs running on cloud/hosted infrastructure)
 
 ---
 
-## Wazuh Manager - ubnsrv-aio
+## Wazuh Manager: ubnsrv-aio
 
 **Agent list output (`manage_agents -l`):**
 ```
@@ -31,7 +31,7 @@ WAZUH_TYPE="server"
 
 ---
 
-## Linux Endpoint - ubnsrv-agent
+## Linux Endpoint: ubnsrv-agent
 
 **OS:**
 ```
@@ -63,13 +63,13 @@ Default driver version: 9.1.0+driver
 ```
 
 Falco config files loaded:
-- `/etc/falco/config.d/engine-kind-falcoctl.yaml`
-- `/etc/falco/config.d/falco.container_plugin.yaml`
-- `/etc/falco/falco.yaml`
+* `/etc/falco/config.d/engine-kind-falcoctl.yaml`
+* `/etc/falco/config.d/falco.container_plugin.yaml`
+* `/etc/falco/falco.yaml`
 
 Custom rules in `/etc/falco/rules.d/`:
-- `falco-incubating_rules.yaml`
-- `falco-linux-enchance.yaml`
+* `falco-incubating_rules.yaml`
+* `falco-linux-enchance.yaml`
 
 **auditd:**
 ```
@@ -78,11 +78,11 @@ Service: active (running) since 2026-05-18
 ```
 > Note: `auditd --version` flag not supported on this version. Version info tied to the `auditd` package from Ubuntu 22.04 repos.
 
-**Audit rules:** 200+ rules loaded (MITRE ATT&CK-mapped). See `configs/linux/auditd-rules.conf`.
+**Audit rules:** 200+ rules loaded (MITRE ATT&CK mapped). See `configs/linux/auditd_rules.conf`.
 
 ---
 
-## Windows Endpoint - winsrv-agent
+## Windows Endpoint: winsrv-agent
 
 **OS:**
 ```
@@ -93,7 +93,7 @@ CsName        : WINSRV-AGN
 ```
 
 **Wazuh Agent version:** v4.14.5
-> Registry path `HKLM:\SOFTWARE\WOW6432Node\ossec` not found - agent may be installed
+> Registry path `HKLM:\SOFTWARE\WOW6432Node\ossec` not found, so the agent may be installed
 > under 64-bit path. Version confirmed from Dashboard agent inventory (v4.14.5).
 
 **Sysmon:**

@@ -4,7 +4,7 @@
   "_source": {
     "input": { "type": "log" },
     "agent": {
-      "ip": "REDACTED",
+      "ip": "<AGENT_IP>",
       "name": "ubnsrv-agent",
       "id": "001"
     },

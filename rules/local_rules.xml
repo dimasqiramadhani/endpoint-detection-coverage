@@ -29,13 +29,14 @@
      
      Falco outputs JSON to /var/log/falco/falco_events.json.
      Wazuh Agent reads this file via <localfile> with log_format: json.
-     Wazuh's built-in JSON decoder handles parsing — no custom decoder needed.
+     Wazuh's built in JSON decoder handles parsing, no custom decoder needed.
      
      Rule 117000 is the base rule that matches any Falco JSON event.
      Rules 117001-117003 are child rules that override the level based
      on the Falco priority field.
      
-     Verified working: 12,080 Falco alerts in 24h sample including:
+     Verified working. The dashboard capture in screenshots/Dashboard_Overview.png
+     records 8,034 Falco alerts over 24 hours, including:
        - Suspicious sshd Execution Pattern (XZ Backdoor Indicators) → 117001
        - Read sensitive file untrusted → 117002
        - Unexpected UDP Traffic → 117003
@@ -76,18 +77,19 @@
 <!-- ============================================================
      AUDITD CUSTOM RULES (210100-210114)
      
-     Parent: Rule 80700 (built-in, level 0 — "Audit: Messages grouped")
+     Parent: Rule 80700 (built in, level 0, "Audit: Messages grouped")
      All auditd SYSCALL events match 80700 first. These child rules
      override with higher levels when specific audit.key values match.
      
      The audit keys come from the MITRE ATT&CK-mapped auditd ruleset
-     installed on ubnsrv-agent. See configs/linux/auditd-rules.conf.
+     installed on ubnsrv-agent. See configs/linux/auditd_rules.conf.
      
      Verified working via wazuh-logtest:
        type=SYSCALL ... key="etcpasswd" → Rule 210100, level 8, T1003
      
-     Confirmed in Dashboard: 128+ auditd alerts in 24h after deployment.
-     Top firing rules: 210113 (T1011, raw socket by Falco), 210102 (rootcmd)
+     Confirmed in the dashboard: 1,712 auditd alerts over 24 hours.
+     Rule 210113 (T1011, raw socket) dominates, and it fires for every process
+     that opens a raw socket rather than for Falco alone. See docs/EVALUATION.md.
      ============================================================ -->
 <group name="audit,auditd,">
 

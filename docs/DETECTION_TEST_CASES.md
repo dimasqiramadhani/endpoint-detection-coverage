@@ -1,6 +1,6 @@
 # Detection Test Cases
 
-Validation testing conducted to confirm detection coverage before production handover. All test cases were run in the cloned pre-production environment.
+Validation testing conducted to confirm detection coverage before production handover. All test cases were run in the cloned pre production environment.
 
 ---
 
@@ -21,14 +21,14 @@ type=SYSCALL ... comm="cat" exe="/usr/bin/cat" key="etcpasswd"
 ```
 
 **Expected Wazuh alert:**
-- Rule: 210100
-- Level: 8
-- Description: "Auditd: Sensitive credential file accessed (/usr/bin/cat by uid=0)"
-- MITRE: T1003
+* Rule: 210100
+* Level: 8
+* Description: "Auditd: Sensitive credential file accessed (/usr/bin/cat by uid=0)"
+* MITRE: T1003
 
 **Result:** Pass. Rule 210100 fired. Alert visible in Dashboard under rule.groups: auditd.
 
-**Sample alert:** `sample-alerts/alert-auditd-rule210113.json` (same auditd pipeline, different key)
+**Sample alert:** `sample_alerts/alert_auditd_rule210113.json` (same auditd pipeline, different key)
 
 ---
 
@@ -45,8 +45,8 @@ sudo id
 ```
 
 **Expected Wazuh alerts:**
-- Rule 210104, level 6 (recon key - whoami, id are in the recon watch list)
-- Rule 210102, level 9 (rootcmd key - non-root user running command with euid=0)
+* Rule 210104, level 6 (recon key, since whoami and id are in the recon watch list)
+* Rule 210102, level 9 (rootcmd key, a non root user running a command with euid=0)
 
 **Result:** Pass. Both rules fired on the same command execution.
 
@@ -65,9 +65,9 @@ wget --version
 ```
 
 **Expected Wazuh alert:**
-- Rule: 210103
-- Level: 8
-- MITRE: T1059
+* Rule: 210103
+* Level: 8
+* MITRE: T1059
 
 **Result:** Pass.
 
@@ -78,7 +78,7 @@ type=SYSCALL ... comm="curl" exe="/usr/bin/curl" key="susp_activity"
 
 ---
 
-## TC-04: Falco - Sensitive File Read
+## TC-04: Falco: Sensitive File Read
 
 **Objective:** Confirm that Falco detects and reports sensitive file reads, and the alert reaches Wazuh.
 
@@ -99,15 +99,15 @@ cat /etc/shadow
 ```
 
 **Expected Wazuh alert:**
-- Rule: 117002
-- Level: 7
-- Description: "Falco Warning: Read sensitive file untrusted"
+* Rule: 117002
+* Level: 7
+* Description: "Falco Warning: Read sensitive file untrusted"
 
 **Result:** Pass. Alert visible in Dashboard under rule.groups: falco.
 
 ---
 
-## TC-05: Falco - XZ Backdoor Pattern
+## TC-05: Falco: XZ Backdoor Pattern
 
 **Objective:** Confirm that Falco's XZ backdoor detection rule fires and the alert reaches Wazuh at Critical priority.
 
@@ -128,21 +128,21 @@ cat /etc/shadow
 ```
 
 **Expected Wazuh alert:**
-- Rule: 117001
-- Level: 10
-- Description: "Falco Critical: Suspicious sshd Execution Pattern (XZ Backdoor Indicators)"
+* Rule: 117001
+* Level: 10
+* Description: "Falco Critical: Suspicious sshd Execution Pattern (XZ Backdoor Indicators)"
 
-**Result:** Pass. Note: this alert requires triage. EXE_WRITABLE on sshd may indicate a true positive (XZ backdoor) or a false positive from normal sshd restart behavior (daemon re-executes itself). See known issues.
+**Result:** Pass. Note: this alert requires triage. EXE_WRITABLE on sshd may indicate a true positive (XZ backdoor) or a false positive from normal sshd restart behavior (daemon runs again itself). See known issues.
 
-**Raw Falco alert:** `sample-alerts/falco-raw-alerts.jsonl`
+**Raw Falco alert:** `sample_alerts/falco_raw_alerts.jsonl`
 
 ---
 
-## TC-06: Sysmon - Process Creation
+## TC-06: Sysmon: Process Creation
 
 **Objective:** Confirm that Sysmon Event ID 1 is collected by the Wazuh Agent and appears in the Dashboard with full telemetry.
 
-**Source:** Sysmon Event ID 1 -> Windows Event Log -> Wazuh Agent -> built-in rules
+**Source:** Sysmon Event ID 1 -> Windows Event Log -> Wazuh Agent -> built in rules
 
 **Test command (on winsrv-agent):**
 ```powershell
@@ -150,17 +150,17 @@ cmd.exe /c whoami
 ```
 
 **Expected telemetry in Wazuh:**
-- data.win.system.eventID: 1
-- data.win.eventdata.commandLine: populated
-- data.win.eventdata.hashes: MD5, SHA256, IMPHASH
-- data.win.eventdata.parentImage: populated
-- data.win.eventdata.user: populated
+* data.win.system.eventID: 1
+* data.win.eventdata.commandLine: populated
+* data.win.eventdata.hashes: MD5, SHA256, IMPHASH
+* data.win.eventdata.parentImage: populated
+* data.win.eventdata.user: populated
 
 **Result:** Pass. Events appearing in Discover with full field population.
 
 ---
 
-## TC-07: Sysmon - PowerShell Execution Policy Bypass
+## TC-07: Sysmon: PowerShell Execution Policy Bypass
 
 **Objective:** Confirm that PowerShell with -ExecutionPolicy Bypass is captured by Sysmon and triggers a Wazuh detection rule.
 
@@ -172,18 +172,18 @@ powershell.exe -ExecutionPolicy Bypass -Command "Write-Host 'detection-test'"
 ```
 
 **Expected Wazuh alert:**
-- Rule: 92027
-- Level: 4
-- Description: "Powershell process spawned powershell instance"
-- MITRE: T1059.001
+* Rule: 92027
+* Level: 4
+* Description: "Powershell process spawned powershell instance"
+* MITRE: T1059.001
 
 **Result:** Pass. Full command line captured including `-ExecutionPolicy Bypass`. Hashes: MD5=7353F60B..., SHA256=DE96A6E6..., IMPHASH=74177...
 
-**Sample alert:** `sample-alerts/alert-sysmon-powershell-rule92027.json`
+**Sample alert:** `sample_alerts/alert_sysmon_powershell_rule92027.json`
 
 ---
 
-## TC-08: Sysmon - Encoded PowerShell Command
+## TC-08: Sysmon: Encoded PowerShell Command
 
 **Objective:** Confirm that PowerShell with -EncodedCommand is captured by Sysmon.
 
@@ -196,14 +196,14 @@ powershell.exe -EncodedCommand dwBoAG8AYQBtAGkA
 ```
 
 **Expected telemetry:**
-- commandLine field contains `-EncodedCommand`
-- Parent and child process chain captured
+* commandLine field contains `-EncodedCommand`
+* Parent and child process chain captured
 
 **Result:** Pass. Event captured in Discover.
 
 ---
 
-## TC-09: Sysmon - PowerShell Download Cradle (IEX)
+## TC-09: Sysmon: PowerShell Download Cradle (IEX)
 
 **Objective:** Confirm that PowerShell IEX download cradle triggers both a process creation event (Event ID 1) and a network connection event (Event ID 3).
 
@@ -216,8 +216,8 @@ powershell.exe -Command "IEX (New-Object Net.WebClient).DownloadString('http://1
 ```
 
 **Expected telemetry:**
-- Event ID 1: process creation with full command line
-- Event ID 3: network connection attempt to 127.0.0.1:80
+* Event ID 1: process creation with full command line
+* Event ID 3: network connection attempt to 127.0.0.1:80
 
 **Result:** Pass. Both event types captured. Connection failure (404) is expected behavior.
 

@@ -1,10 +1,10 @@
-# Windows Agent Setup - Sysmon (winsrv-agent)
+# Windows Agent Setup: Sysmon (winsrv-agent)
 
 ## Overview
 
 winsrv-agent is a Windows Server 2019 Standard (Build 10.0.17763) running:
-- Wazuh Agent v4.14.5 (log forwarding)
-- Sysmon v15.20 (process, network, file, registry, DNS telemetry)
+* Wazuh Agent v4.14.5 (log forwarding)
+* Sysmon v15.20 (process, network, file, registry, DNS telemetry)
 
 ## Wazuh Agent
 
@@ -71,8 +71,8 @@ Get-Service Sysmon64
 
 | Event ID | Description         | Status                                              |
 |----------|---------------------|-----------------------------------------------------|
-| 1        | Process creation    | Active - confirmed PowerShell detection             |
-| 3        | Network connection  | Active - confirmed RDP inbound, IEX download cradle |
+| 1        | Process creation    | Active, confirmed PowerShell detection             |
+| 3        | Network connection  | Active, confirmed RDP inbound, IEX download cradle |
 | 6        | Driver loaded       | Active                                              |
 | 7        | Image loaded        | Active                                              |
 | 10       | Process access      | Active                                              |
@@ -94,7 +94,7 @@ IntegrityLevel: High
 Hashes: MD5=7353F60B..., SHA256=DE96A6E6..., IMPHASH=74177...
 ```
 
-## Wazuh Agent - Event Channel Configuration
+## Wazuh Agent: Event Channel Configuration
 
 From `C:\Program Files (x86)\ossec-agent\ossec.conf`:
 
@@ -103,7 +103,7 @@ From `C:\Program Files (x86)\ossec-agent\ossec.conf`:
 
   <client>
     <server>
-      <address>MANAGER_IP_REDACTED</address>
+      <address>MANAGER_IP</address>
     </server>
   </client>
 
@@ -146,9 +146,9 @@ From `C:\Program Files (x86)\ossec-agent\ossec.conf`:
 
 ### Important Notes
 
-- `log_format` must be `eventchannel`, not `eventlog`. Using `eventlog` silently drops events with no error message.
-- The Security channel query filters high-volume noise events (object access, policy changes) that are not relevant to detection.
-- Restart the Wazuh Agent after any `ossec.conf` change: `Restart-Service WazuhSvc`
+* `log_format` must be `eventchannel`, not `eventlog`. Using `eventlog` silently drops events with no error message.
+* The Security channel query filters high volume noise events (object access, policy changes) that are not relevant to detection.
+* Restart the Wazuh Agent after any `ossec.conf` change: `Restart-Service WazuhSvc`
 
 ## Verify Events in Wazuh
 
@@ -158,6 +158,6 @@ powershell.exe -ExecutionPolicy Bypass -Command "Write-Host 'test'"
 ```
 
 In Wazuh Dashboard, filter by:
-- agent.name: winsrv-agent
-- data.win.system.channel: Microsoft-Windows-Sysmon/Operational
-- data.win.system.eventID: 1
+* agent.name: winsrv-agent
+* data.win.system.channel: Microsoft-Windows-Sysmon/Operational
+* data.win.system.eventID: 1

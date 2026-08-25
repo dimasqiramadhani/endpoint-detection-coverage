@@ -9,14 +9,14 @@
     },
     "input": { "type": "log" },
     "agent": {
-      "ip": "REDACTED",
+      "ip": "<AGENT_IP>",
       "name": "ubnsrv-agent",
       "id": "001"
     },
     "manager": { "name": "ubnsrv-aio" },
     "data": {
       "srcuser": "guest",
-      "srcip": "REDACTED"
+      "srcip": "<ATTACKER_IP>"
     },
     "rule": {
       "mail": false,
@@ -49,7 +49,7 @@
         "lat": 51.4964
       }
     },
-    "full_log": "May 24 20:18:12 ubnsrv-falco sshd[319088]: Failed password for invalid user guest from REDACTED port 16181 ssh2",
+    "full_log": "May 24 20:18:12 ubnsrv-falco sshd[319088]: Failed password for invalid user guest from <ATTACKER_IP> port 16181 ssh2",
     "timestamp": "2026-05-25T03:18:13.863+0700"
   }
 }

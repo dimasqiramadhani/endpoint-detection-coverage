@@ -1,24 +1,24 @@
 graph TB
-    subgraph VM1["Wazuh All-in-One (VM1)"]
+    subgraph AIO["Wazuh All in One, Central SIEM"]
         WM[Wazuh Manager]
         WI[Wazuh Indexer / OpenSearch]
         WD[Wazuh Dashboard]
         WM --> WI --> WD
     end
 
-    subgraph VM2["Linux Server (VM2)"]
-        LA[Wazuh Agent]
-        Falco[Falco]
+    subgraph LINUX["Linux Server Endpoint"]
+        LA[Wazuh Agent v4.14.5]
+        Falco[Falco 0.43.1]
         Auditd[auditd]
-        Falco -->|alerts to log file| LA
+        Falco -->|JSON alerts| LA
         Auditd -->|audit.log| LA
     end
 
-    subgraph VM3["Windows Server 2019 (VM3)"]
-        WA[Wazuh Agent]
-        Sysmon[Sysmon]
+    subgraph WIN["Windows Server 2019 Endpoint"]
+        WA[Wazuh Agent v4.14.5]
+        Sysmon[Sysmon v15.20]
         Sysmon -->|Event Log| WA
     end
 
-    LA -->|"port 1514 (encrypted)"| WM
-    WA -->|"port 1514 (encrypted)"| WM
+    LA -->|port 1514 TLS| WM
+    WA -->|port 1514 TLS| WM

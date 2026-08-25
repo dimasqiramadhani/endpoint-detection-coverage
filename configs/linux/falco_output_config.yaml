@@ -1,4 +1,4 @@
-# Falco Configuration — ubnsrv-agent (Ubuntu 22.04.5 LTS)
+# Falco Configuration, ubnsrv-agent (Ubuntu 22.04.5 LTS)
 # Relevant section: file_output
 #
 # Falco is configured to write alerts as JSON to a local file.
@@ -14,7 +14,7 @@
 
 # ── file_output section (from /etc/falco/falco.yaml) ─────────────────────────
 
-# file_output — write alerts to a local file for Wazuh Agent to collect.
+# file_output, write alerts to a local file for Wazuh Agent to collect.
 # keep_alive: true = file is opened once and written continuously (better performance).
 # Logrotate should be configured to prevent unbounded file growth.
 file_output:
@@ -43,7 +43,7 @@ file_output:
 #
 # ── Wazuh detection rules for Falco output ───────────────────────────────────
 # See rules/local_rules.xml:
-#   117000 — base Falco rule (level 6)
-#   117001 — Critical priority (level 10)
-#   117002 — Warning priority (level 7)
-#   117003 — Notice/Informational priority (level 5)
+#   117000, base Falco rule (level 6)
+#   117001, Critical priority (level 10)
+#   117002, Warning priority (level 7)
+#   117003, Notice/Informational priority (level 5)

@@ -8,7 +8,7 @@ Issues encountered during implementation and testing, with resolution steps.
 
 **Symptom:** auditd service running, audit rules loaded, events visible in `ausearch` and in raw Discover results, but zero alerts in Security Events or the custom dashboard widget.
 
-**Root cause:** Wazuh's built-in rule 80700 ("Audit: Messages grouped") matches all auditd events at level 0. Level 0 events are indexed but never generate alerts. The rule exists as a parent for child rules that should override it with higher levels, but none of the default child rules matched the audit key values from the MITRE-mapped auditd ruleset in use.
+**Root cause:** Wazuh's built in rule 80700 ("Audit: Messages grouped") matches all auditd events at level 0. Level 0 events are indexed but never generate alerts. The rule exists as a parent for child rules that should override it with higher levels, but none of the default child rules matched the audit key values from the MITRE mapped auditd ruleset in use.
 
 **Resolution:** Wrote custom rules 210100-210114 in `local_rules.xml` using `<if_sid>80700</if_sid>` as the parent, matching the specific audit key values (`etcpasswd`, `rootcmd`, `susp_activity`, etc.). Restarted the Manager and verified with `wazuh-logtest`:
 
@@ -33,7 +33,7 @@ sudo /var/ossec/bin/wazuh-logtest
 
 **Symptom:** `wazuh-logtest` outputs duplicate rule ID warnings for every custom rule. The intended rules are silently ignored in favor of the first definition loaded.
 
-**Root cause:** Pre-installed Sysmon MITRE rule files occupied IDs 100100-200186. The initial custom auditd rules were assigned IDs in the same range.
+**Root cause:** Preinstalled Sysmon MITRE rule files occupied IDs 100100-200186. The initial custom auditd rules were assigned IDs in the same range.
 
 **Resolution:** Checked the full rule ID space and moved custom rules to 210100+.
 
@@ -99,8 +99,8 @@ ID: 002, Name: winsrv-agent, IP: any, Active
 ```
 
 If an agent shows Disconnected, check:
-1. Firewall on the Manager - port 1514 TCP must be open inbound
-2. Agent config - `<address>` in `ossec.conf` must match the Manager IP
+1. Firewall on the Manager, port 1514 TCP must be open inbound
+2. Agent config, `<address>` in `ossec.conf` must match the Manager IP
 3. Agent service status: `systemctl status wazuh-agent` (Linux) or `Get-Service WazuhSvc` (Windows)
 4. Agent logs: `/var/ossec/logs/ossec.log`
 

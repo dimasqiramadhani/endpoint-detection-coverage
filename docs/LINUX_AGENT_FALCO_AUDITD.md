@@ -1,11 +1,11 @@
-# Linux Agent Setup - Falco and auditd (ubnsrv-agent)
+# Linux Agent Setup: Falco and auditd (ubnsrv-agent)
 
 ## Overview
 
 ubnsrv-agent is an Ubuntu 22.04.5 LTS server running three telemetry sources:
-- Wazuh Agent v4.14.5 (log forwarding)
-- Falco 0.43.1 (runtime threat detection via eBPF)
-- auditd (Linux syscall auditing)
+* Wazuh Agent v4.14.5 (log forwarding)
+* Falco 0.43.1 (runtime threat detection via eBPF)
+* auditd (Linux syscall auditing)
 
 ## Wazuh Agent
 
@@ -60,17 +60,17 @@ file_output:
 ### Rules
 
 Active Falco config files:
-- `/etc/falco/falco.yaml` (main config)
-- `/etc/falco/config.d/engine-kind-falcoctl.yaml`
-- `/etc/falco/config.d/falco.container_plugin.yaml`
+* `/etc/falco/falco.yaml` (main config)
+* `/etc/falco/config.d/engine-kind-falcoctl.yaml`
+* `/etc/falco/config.d/falco.container_plugin.yaml`
 
 Custom rules in `/etc/falco/rules.d/`:
-- `falco-incubating_rules.yaml` (community incubating rules, includes XZ backdoor pattern)
-- `falco-linux-enchance.yaml` (Linux-specific enhancements)
+* `falco-incubating_rules.yaml` (community incubating rules, includes XZ backdoor pattern)
+* `falco-linux-enchance.yaml` (Linux specific enhancements)
 
 No modifications to the default Falco ruleset were made. The detections in this implementation use the rules as distributed.
 
-### Wazuh Agent - Falco Log Collection
+### Wazuh Agent: Falco Log Collection
 
 From `/var/ossec/etc/ossec.conf` on ubnsrv-agent:
 
@@ -81,7 +81,7 @@ From `/var/ossec/etc/ossec.conf` on ubnsrv-agent:
 </localfile>
 ```
 
-`log_format: json` activates Wazuh's built-in JSON decoder. No custom decoder is required. Falco's JSON output fields (`rule`, `priority`, `hostname`, `output`) are parsed automatically and matched by the custom Falco rules (117000-117003).
+`log_format: json` activates Wazuh's built in JSON decoder. No custom decoder is required. Falco's JSON output fields (`rule`, `priority`, `hostname`, `output`) are parsed automatically and matched by the custom Falco rules (117000-117003).
 
 ### Verify Falco Alerts Reaching Wazuh
 
@@ -103,9 +103,9 @@ auditd from Ubuntu 22.04 package repository. Service active since 2026-05-18.
 
 ### Audit Rules
 
-A MITRE ATT&CK-mapped auditd ruleset is loaded on this server. The ruleset covers over 200 rules across categories including credential access, privilege escalation, persistence, lateral movement, and exfiltration.
+A MITRE ATT&CK mapped auditd ruleset is loaded on this server. The ruleset covers over 200 rules across categories including credential access, privilege escalation, persistence, lateral movement, and exfiltration.
 
-Full ruleset documented in `configs/linux/auditd-rules.conf`.
+Full ruleset documented in `configs/linux/auditd_rules.conf`.
 
 Key audit keys relevant to custom Wazuh rules:
 
@@ -113,7 +113,7 @@ Key audit keys relevant to custom Wazuh rules:
 |----------------------------------------------|------------------------------------------------------------------|
 | etcpasswd                                    | /etc/passwd and /etc/shadow access                               |
 | shadow_access                                | /etc/shadow read/write/execute                                   |
-| rootcmd                                      | Commands executed as root by non-root users (euid=0, auid>=1000) |
+| rootcmd                                      | Commands executed as root by non root users (euid=0, auid>=1000) |
 | susp_activity                                | Execution of curl, wget, nc, nmap, and similar tools             |
 | recon                                        | whoami, id, hostname, uname                                      |
 | priv_esc                                     | sudo, su, SUID binaries                                          |
@@ -126,7 +126,7 @@ sudo auditctl -R /etc/audit/rules.d/audit.rules
 sudo auditctl -l  # verify
 ```
 
-### Wazuh Agent - auditd Log Collection
+### Wazuh Agent: auditd Log Collection
 
 From `/var/ossec/etc/ossec.conf` on ubnsrv-agent:
 
@@ -137,7 +137,7 @@ From `/var/ossec/etc/ossec.conf` on ubnsrv-agent:
 </localfile>
 ```
 
-`log_format: audit` activates Wazuh's built-in auditd decoder, which parses the Linux audit record format (type=SYSCALL, type=PATH, type=EXECVE records).
+`log_format: audit` activates Wazuh's built in auditd decoder, which parses the Linux audit record format (type=SYSCALL, type=PATH, type=EXECVE records).
 
 ### Verify auditd Events Reaching Wazuh
 
@@ -155,16 +155,16 @@ ausearch -k etcpasswd -ts recent
 
 ### Important Note on Rule 80700
 
-All auditd SYSCALL events match Wazuh's built-in rule 80700 ("Audit: Messages grouped") at level 0. This means no alert is generated unless a custom child rule explicitly matches the `audit.key` field. The custom rules in this implementation (210100-210114) are child rules of 80700. Without them, auditd events are indexed but invisible in Security Events.
+All auditd SYSCALL events match Wazuh's built in rule 80700 ("Audit: Messages grouped") at level 0. This means no alert is generated unless a custom child rule explicitly matches the `audit.key` field. The custom rules in this implementation (210100-210114) are child rules of 80700. Without them, auditd events are indexed but invisible in Security Events.
 
-## Full ossec.conf - Relevant Sections
+## Full ossec.conf: Relevant Sections
 
 ```xml
 <ossec_config>
 
   <client>
     <server>
-      <address>MANAGER_IP_REDACTED</address>
+      <address>MANAGER_IP</address>
       <port>1514</port>
       <protocol>tcp</protocol>
     </server>

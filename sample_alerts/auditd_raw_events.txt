@@ -1,6 +1,6 @@
-# auditd Raw Events — ubnsrv-agent
+# auditd Raw Events, ubnsrv-agent
 # Source: ausearch output (May 25, 2026)
-# These events map to Wazuh custom rules 210100–210114
+# These events map to Wazuh custom rules 210100 to 210114
 
 # ── Event 1: /etc/shadow access by cat (key=etcpasswd → Rule 210100, level 8) ─
 # Triggered manually: cat /etc/shadow
@@ -11,7 +11,7 @@ type=PROCTITLE msg=audit(1779654045.836:1338572): proctitle=636174002F6574632F73
 type=PATH msg=audit(1779654045.836:1338572): item=0 name="/etc/shadow" inode=399 dev=fc:01 mode=0100640 ouid=0 ogid=42 rdev=00:00 nametype=NORMAL cap_fp=0 cap_fi=0 cap_fe=0 cap_fver=0 cap_frootid=0
 type=SYSCALL msg=audit(1779654045.836:1338572): arch=c000003e syscall=257 success=yes exit=3 a0=ffffff9c a1=7ffc23b7b86b a2=0 a3=0 items=1 ppid=319126 pid=319134 auid=1000 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=pts7 ses=239 comm="cat" exe="/usr/bin/cat" subj=unconfined key="etcpasswd"
 
-# ── Event 2: rootcmd — cat run as root by non-root user (→ Rule 210102, level 9)
+# ── Event 2: rootcmd, cat run as root by non-root user (→ Rule 210102, level 9)
 # Same cat /etc/shadow, but captured under rootcmd key because:
 #   euid=0 (effective root) AND auid>=1000 (original user was ecustomer)
 # This demonstrates how one action can trigger multiple audit rules.
@@ -23,7 +23,7 @@ type=PATH msg=audit(1779654045.836:1338571): item=0 name="/usr/bin/cat" inode=15
 type=EXECVE msg=audit(1779654045.836:1338571): argc=2 a0="cat" a1="/etc/shadow"
 type=SYSCALL msg=audit(1779654045.836:1338571): arch=c000003e syscall=59 success=yes exit=0 a0=563dd76e9710 a1=563dd76e9450 a2=563dd76b03b0 a3=8 items=2 ppid=319126 pid=319134 auid=1000 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=pts7 ses=239 comm="cat" exe="/usr/bin/cat" subj=unconfined key="rootcmd"
 
-# ── Event 3: susp_activity — curl execution (→ Rule 210103, level 8) ──────────
+# ── Event 3: susp_activity, curl execution (→ Rule 210103, level 8) ──────────
 # Triggered: curl --version
 # curl is in the susp_activity watch list (-w /usr/bin/curl -p x -k susp_activity)
 ----
@@ -36,7 +36,7 @@ type=SYSCALL msg=audit(1779654045.852:1338615): arch=c000003e syscall=59 success
 
 # ── Field reference ───────────────────────────────────────────────────────────
 # Key fields in SYSCALL records:
-#   auid   = audit UID (original login user — 1000 = ecustomer, 4294967295 = unset/system)
+#   auid   = audit UID (original login user, 1000 = ecustomer, 4294967295 = unset/system)
 #   uid    = real UID at time of syscall
 #   euid   = effective UID (0 = root)
 #   comm   = command name
@@ -44,4 +44,4 @@ type=SYSCALL msg=audit(1779654045.852:1338615): arch=c000003e syscall=59 success
 #   key    = audit rule key that matched
 #   syscall 257 = openat (file open)
 #   syscall  59 = execve (process execution)
-#   syscall  41 = socket (network socket creation — used by T1011 rule)
+#   syscall  41 = socket (network socket creation, used by T1011 rule)
