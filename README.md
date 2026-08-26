@@ -1,5 +1,3 @@
-![Cover Image](screenshots/Cover_Image.png)
-
 # Endpoint Detection Engineering with Wazuh, Falco, Sysmon, and Auditd
 
 Security monitoring implementation developed for an assurance services client as part of a two month security engineering engagement. The implementation covers endpoint telemetry collection, centralized log management, and detection engineering across Linux and Windows server environments.
